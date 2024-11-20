@@ -1,0 +1,89 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation -0.5581151015561315 0.5730305897084138 0.6001195519839498 2.0371668183729272
+  position -0.002037910076594082 -0.15963659564788346 3.1990201904116833
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+  floorAppearance Appearance {
+    texture ImageTexture {
+      url [
+        "../line.png"
+      ]
+    }
+    textureTransform TextureTransform {
+      scale 0.25 0.25
+    }
+  }
+}
+E-puck {
+  hidden position_0_0 244.453599140057
+  hidden position_0_1 302.10190166365663
+  hidden rotation_1 0 1 0 5.692557467232722
+  hidden rotation_2 0 1 0 0.5090069190364821
+  translation -0.586429 -0.349214 -6.40456e-05
+  rotation -0.00022192191831506064 0.00017770860153793782 0.9999999595851568 1.7597029004613491
+  controller "basic_line_following"
+  groundSensorsSlot [
+    DistanceSensor {
+      translation 0 -0.0115 0.007
+      rotation 0 1 0 1.57
+      name "lfs0"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 -0.0085 0.007
+      rotation 0 1 0 1.57
+      name "lfs1"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 -0.0065 0.007
+      rotation 0 1 0 1.57
+      name "lfs2"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 -0.002 0.007
+      rotation 0 1 0 1.57
+      name "lfs3"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 0.0045 0.007
+      rotation 0 1 0 1.57
+      name "lfs4"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 0.0065 0.007
+      rotation 0 1 0 1.57
+      name "lfs5"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 0.0085 0.007
+      rotation 0 1 0 1.57
+      name "lfs6"
+      type "infra-red"
+    }
+    DistanceSensor {
+      translation 0 0.0115 0.007
+      rotation 0 1 0 1.57
+      name "lfs7"
+      type "infra-red"
+    }
+  ]
+}
