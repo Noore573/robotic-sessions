@@ -1,0 +1,126 @@
+#VRML_SIM R2023b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/Floor.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/WoodenBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
+
+WorldInfo {
+  info [
+    "Simulation of the KUKA youBot robot."
+    "This model includes an accurate and fast simulation of the Meccanum wheels."
+    "The robot can be equiped with various sensors (including the Microsoft Kinect) and configured with zero, one or two arms."
+  ]
+  title "KUKA youBot"
+  basicTimeStep 16
+  contactProperties [
+    ContactProperties {
+      material1 "InteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation -0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+    ContactProperties {
+      material1 "ExteriorWheelMat"
+      coulombFriction [
+        0, 2, 0
+      ]
+      frictionRotation 0.785398 0
+      bounce 0
+      forceDependentSlip [
+        10, 0
+      ]
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.007474859638475625 -0.974813643663919 0.22289568546757307 5.210648335686071
+  position -0.21834637365845877 0.15960263539339833 1.656269238655261
+  follow "youBot"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 100 100
+}
+DEF WOOD WoodenBox {
+  translation 0.605448 -0.00878 0.2
+  rotation 0 0 1 -1.5707963267948966
+  size 0.6 0.6 0.4
+}
+DEF WOOD WoodenBox {
+  translation 0.605448 -0.68878 0.2
+  rotation 0 0 1 -1.5707963267948966
+  name "wooden box(1)"
+  size 0.6 0.6 0.4
+}
+Youbot {
+  hidden position_0_0 -5.161281713128574e-08
+  hidden position_0_1 -1.6756181143419228e-08
+  hidden position_0_2 -5.595738406930377e-07
+  hidden position_0_3 4.0349336855399264e-08
+  hidden linearVelocity_0 2.577448062871954e-09 2.049492705070885e-09 5.7375886568127484e-08
+  hidden angularVelocity_0 -3.548959406923937e-08 4.075512653233972e-08 -5.1183427846986424e-11
+  hidden position_2_0 -2.3061857179484946e-06
+  hidden rotation_3 0 0 -1 2.306168332356712e-06
+  hidden position_3_0 -4.348153384015063e-07
+  hidden linearVelocity_3 9.303290366589875e-09 7.637404682712386e-09 4.758040519362147e-08
+  hidden angularVelocity_3 -3.543456063469978e-08 4.080391793340322e-08 -1.6504550685892005e-09
+  hidden rotation_4 0 1 0 4.3495057580847895e-07
+  hidden position_4_0 -3.656644365079842e-07
+  hidden linearVelocity_4 2.458253963759532e-08 1.0869442522965525e-08 4.675661083728688e-08
+  hidden angularVelocity_4 -3.537281768129407e-08 1.8704844799399542e-07 -1.656481407188192e-09
+  hidden rotation_5 0 1 0 3.6621706865562575e-07
+  hidden position_5_0 -3.498423062353595e-08
+  hidden linearVelocity_5 5.5048031240824905e-08 1.5729891422073822e-08 4.387804539306074e-08
+  hidden angularVelocity_5 -3.535751176298587e-08 2.465008087745052e-07 -1.6586197772271697e-09
+  hidden rotation_6 0 1 0 2.9802322387695313e-08
+  hidden position_6_0 5.932317385056565e-10
+  hidden linearVelocity_6 7.900269736016097e-08 1.9030031221608643e-08 4.4084454110969964e-08
+  hidden angularVelocity_6 -3.535120665201387e-08 2.6015090557427776e-07 -1.6591790856749149e-09
+  hidden position_7_0 0.02640003963229913
+  hidden position_7_1 0.026400041957469644
+  hidden linearVelocity_7 1.0500928815732395e-07 2.253621160878516e-08 4.38802124254236e-08
+  hidden angularVelocity_7 -3.534962149402333e-08 2.601505095944156e-07 -1.6591837979978065e-09
+  hidden translation_8 0 0.02640003963229913 0.09
+  hidden linearVelocity_8 7.174482228691627e-07 0.010000024965176437 -3.6220278239345827e-07
+  hidden angularVelocity_8 -3.652693777295313e-08 2.6015055909137116e-07 -1.659170952397359e-09
+  hidden translation_9 0 -0.026400041957469644 0.09
+  hidden linearVelocity_9 -4.7361203763946604e-07 -0.009999975059405575 4.497858177908252e-07
+  hidden angularVelocity_9 -3.417213738236967e-08 2.6015041943040523e-07 -1.659212182031541e-09
+  hidden rotation_10 0 -1 0 5.16191365590357e-08
+  hidden linearVelocity_10 -5.72066992366672e-10 -1.0153553251812624e-09 5.776629006890307e-08
+  hidden angularVelocity_10 -3.562054220588146e-08 4.0485501994533424e-08 -5.302819663336288e-11
+  hidden linearVelocity_11 -8.693884683325718e-10 4.2807480432505324e-09 4.628713149267507e-08
+  hidden angularVelocity_11 -3.535325138142441e-08 4.048478770278119e-08 -4.931851728929046e-11
+  hidden rotation_12 0 -1 0 5.599348016993998e-07
+  hidden linearVelocity_12 4.611189250809135e-09 -1.0636223425098002e-09 7.530050053855704e-08
+  hidden angularVelocity_12 -3.5670649351476116e-08 4.102549659066462e-08 -2.924719857271639e-11
+  hidden rotation_13 0 1 0 4.2146848510894035e-08
+  hidden linearVelocity_13 4.846146180674954e-09 4.387165578427506e-09 6.384962790189768e-08
+  hidden angularVelocity_13 -3.535039948697978e-08 4.102584793537858e-08 -4.9876327804634195e-11
+  translation -1.2188801863504648 0.0011603906483067172 0.10193771398762407
+  rotation -0.0190662795912669 0.9994350435685628 -0.027677981675921295 0.00211115229780411
+  controller "my_controller"
+  controllerArgs [
+    "demo"
+  ]
+  bodySlot [
+    DistanceSensor {
+      translation 0.29 0 0
+      rotation 1 0 0 1.57
+      lookupTable [
+        0 0 0
+        10 10000 0
+      ]
+    }
+  ]
+}
