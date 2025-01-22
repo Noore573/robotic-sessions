@@ -51,17 +51,7 @@ TexturedBackgroundLight {
 Floor {
   size 100 100
 }
-DEF WOOD WoodenBox {
-  translation 0.605448 -0.00878 0.2
-  rotation 0 0 1 -1.5707963267948966
-  size 0.6 0.6 0.4
-}
-DEF WOOD WoodenBox {
-  translation 0.605448 -0.68878 0.2
-  rotation 0 0 1 -1.5707963267948966
-  name "wooden box(1)"
-  size 0.6 0.6 0.4
-}
+
 Youbot {
   hidden position_0_0 -5.161281713128574e-08
   hidden position_0_1 -1.6756181143419228e-08
