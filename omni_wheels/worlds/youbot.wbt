@@ -3,7 +3,6 @@
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackground.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/Floor.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/factory/containers/protos/WoodenBox.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 
 WorldInfo {
@@ -40,8 +39,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.007474859638475625 -0.974813643663919 0.22289568546757307 5.210648335686071
-  position -0.21834637365845877 0.15960263539339833 1.656269238655261
+  orientation -0.46322275424150183 0.41907207147678877 0.7808990196312648 1.9114886641086697
+  position -1.3762520874516697 -6.084219402261873 6.80678019974958
   follow "youBot"
 }
 TexturedBackground {
@@ -49,67 +48,172 @@ TexturedBackground {
 TexturedBackgroundLight {
 }
 Floor {
-  size 100 100
+  appearance Appearance {
+    material Material {
+      ambientIntensity 1
+      shininess 0.6
+      specularColor 1 1 1
+    }
+    texture ImageTexture {
+      url [
+        "C:/Users/DELL/Downloads/Telegram Desktop/lastdesign100.jpg"
+      ]
+      repeatS FALSE
+      repeatT FALSE
+    }
+    textureTransform TextureTransform {
+      scale 0.1 0.1
+    }
+  }
 }
-
+Transform {
+  scale 0.5 0.5 0.5
+  children [
+    Pose {
+    }
+  ]
+}
+Shape {
+}
+Transform {
+  scale 0.1 0.1 0.1
+}
 Youbot {
-  hidden position_0_0 -5.161281713128574e-08
-  hidden position_0_1 -1.6756181143419228e-08
-  hidden position_0_2 -5.595738406930377e-07
-  hidden position_0_3 4.0349336855399264e-08
-  hidden linearVelocity_0 2.577448062871954e-09 2.049492705070885e-09 5.7375886568127484e-08
-  hidden angularVelocity_0 -3.548959406923937e-08 4.075512653233972e-08 -5.1183427846986424e-11
-  hidden position_2_0 -2.3061857179484946e-06
-  hidden rotation_3 0 0 -1 2.306168332356712e-06
-  hidden position_3_0 -4.348153384015063e-07
-  hidden linearVelocity_3 9.303290366589875e-09 7.637404682712386e-09 4.758040519362147e-08
-  hidden angularVelocity_3 -3.543456063469978e-08 4.080391793340322e-08 -1.6504550685892005e-09
-  hidden rotation_4 0 1 0 4.3495057580847895e-07
-  hidden position_4_0 -3.656644365079842e-07
-  hidden linearVelocity_4 2.458253963759532e-08 1.0869442522965525e-08 4.675661083728688e-08
-  hidden angularVelocity_4 -3.537281768129407e-08 1.8704844799399542e-07 -1.656481407188192e-09
-  hidden rotation_5 0 1 0 3.6621706865562575e-07
-  hidden position_5_0 -3.498423062353595e-08
-  hidden linearVelocity_5 5.5048031240824905e-08 1.5729891422073822e-08 4.387804539306074e-08
-  hidden angularVelocity_5 -3.535751176298587e-08 2.465008087745052e-07 -1.6586197772271697e-09
-  hidden rotation_6 0 1 0 2.9802322387695313e-08
-  hidden position_6_0 5.932317385056565e-10
-  hidden linearVelocity_6 7.900269736016097e-08 1.9030031221608643e-08 4.4084454110969964e-08
-  hidden angularVelocity_6 -3.535120665201387e-08 2.6015090557427776e-07 -1.6591790856749149e-09
-  hidden position_7_0 0.02640003963229913
-  hidden position_7_1 0.026400041957469644
-  hidden linearVelocity_7 1.0500928815732395e-07 2.253621160878516e-08 4.38802124254236e-08
-  hidden angularVelocity_7 -3.534962149402333e-08 2.601505095944156e-07 -1.6591837979978065e-09
-  hidden translation_8 0 0.02640003963229913 0.09
-  hidden linearVelocity_8 7.174482228691627e-07 0.010000024965176437 -3.6220278239345827e-07
-  hidden angularVelocity_8 -3.652693777295313e-08 2.6015055909137116e-07 -1.659170952397359e-09
-  hidden translation_9 0 -0.026400041957469644 0.09
-  hidden linearVelocity_9 -4.7361203763946604e-07 -0.009999975059405575 4.497858177908252e-07
-  hidden angularVelocity_9 -3.417213738236967e-08 2.6015041943040523e-07 -1.659212182031541e-09
-  hidden rotation_10 0 -1 0 5.16191365590357e-08
-  hidden linearVelocity_10 -5.72066992366672e-10 -1.0153553251812624e-09 5.776629006890307e-08
-  hidden angularVelocity_10 -3.562054220588146e-08 4.0485501994533424e-08 -5.302819663336288e-11
-  hidden linearVelocity_11 -8.693884683325718e-10 4.2807480432505324e-09 4.628713149267507e-08
-  hidden angularVelocity_11 -3.535325138142441e-08 4.048478770278119e-08 -4.931851728929046e-11
-  hidden rotation_12 0 -1 0 5.599348016993998e-07
-  hidden linearVelocity_12 4.611189250809135e-09 -1.0636223425098002e-09 7.530050053855704e-08
-  hidden angularVelocity_12 -3.5670649351476116e-08 4.102549659066462e-08 -2.924719857271639e-11
-  hidden rotation_13 0 1 0 4.2146848510894035e-08
-  hidden linearVelocity_13 4.846146180674954e-09 4.387165578427506e-09 6.384962790189768e-08
-  hidden angularVelocity_13 -3.535039948697978e-08 4.102584793537858e-08 -4.9876327804634195e-11
-  translation -1.2188801863504648 0.0011603906483067172 0.10193771398762407
-  rotation -0.0190662795912669 0.9994350435685628 -0.027677981675921295 0.00211115229780411
+  hidden position_0_0 46.0406805233211
+  hidden position_0_1 46.04071893956528
+  hidden position_0_2 46.15946245741002
+  hidden position_0_3 46.15946349449344
+  hidden linearVelocity_0 -0.2999999882524762 8.364421331522543e-05 3.581303481683735e-11
+  hidden angularVelocity_0 9.356956762536096e-07 1.0615823895105379e-09 2.501044207738437e-07
+  hidden position_4_0 1.9231863609079974e-06
+  hidden rotation_5 0 0 1 1.9231159454467654e-06
+  hidden position_5_0 0.01667358218877679
+  hidden linearVelocity_5 -0.29999998560045227 8.344603252951713e-05 -9.104706622696129e-09
+  hidden angularVelocity_5 9.357225119456234e-07 1.068209794131551e-09 2.4848615618299427e-07
+  hidden rotation_6 0 -1 0 0.016673582188789424
+  hidden position_6_0 5.2230733346367156e-06
+  hidden linearVelocity_6 -0.2999999166448201 8.33501075732398e-05 2.7194534698709643e-08
+  hidden angularVelocity_6 9.360201878862615e-07 1.0113128230300275e-06 2.485268934501657e-07
+  hidden rotation_7 0 -1 0 5.223064250141372e-06
+  hidden position_7_0 1.2034026957801645e-06
+  hidden linearVelocity_7 -0.29999973331042074 8.321767864950531e-05 -2.4422804123199864e-08
+  hidden angularVelocity_7 9.361416518158204e-07 1.4220659334878055e-06 2.4854368225147105e-07
+  hidden rotation_8 0 -1 0 1.20358589329177e-06
+  hidden position_8_0 -4.436928981355241e-11
+  hidden linearVelocity_8 -0.2999995999446531 8.312814611076232e-05 -5.400167084831117e-09
+  hidden angularVelocity_8 9.361696741719712e-07 1.5163777147058044e-06 2.4854749984638197e-07
+  hidden position_9_0 0.024999996695638255
+  hidden position_9_1 0.025000003179877908
+  hidden linearVelocity_9 -0.29999944832190567 8.303489562336779e-05 -7.616934388843958e-09
+  hidden angularVelocity_9 9.361701766152947e-07 1.5163779305043552e-06 2.485474906144861e-07
+  hidden translation_10 0 0.024999996695638255 0.09
+  hidden linearVelocity_10 -0.2999993410701262 8.297416554785709e-05 -4.180904159275672e-08
+  hidden angularVelocity_10 9.361702271873015e-07 1.5163779498423278e-06 2.4854751505438303e-07
+  hidden translation_11 0 -0.025000003179877908 0.09
+  hidden linearVelocity_11 -0.2999993584641463 8.297416772454135e-05 2.3693417864430997e-08
+  hidden angularVelocity_11 9.361701993813424e-07 1.516377940987321e-06 2.48547487357847e-07
+  hidden rotation_12 0 -1 0 4.224801934115591
+  hidden linearVelocity_12 -0.2999999955850404 8.363452079102353e-05 1.4527148625379436e-07
+  hidden angularVelocity_12 -0.0016731785559755707 -5.999999762028417 -0.00024315389416365108
+  hidden rotation_13 0 -1 0 4.224763517871411
+  hidden linearVelocity_13 -0.2999999809468225 8.363450856646492e-05 -1.4461404287675628e-07
+  hidden angularVelocity_13 -0.001673178555343931 -5.999999758863103 -0.00024315389812254687
+  hidden rotation_14 0 -0.9999999999999999 0 4.106020000026669
+  hidden linearVelocity_14 -0.29999999563922936 8.368333241684922e-05 1.4468009116506005e-07
+  hidden angularVelocity_14 -0.0016731799711209735 -5.999999762027541 -0.0002431541602373707
+  hidden rotation_15 0 -1 0 4.106018962943255
+  hidden linearVelocity_15 -0.2999999809023629 8.36833201589826e-05 -1.452054400978184e-07
+  hidden angularVelocity_15 -0.0016731799678365003 -5.999999758865829 -0.0002431541634765768
+  translation -0.9771105474941599 -2.5788061973316156 0.10193772000761595
+  rotation -0.001043605466307616 -2.0143429438506213e-05 0.999999455240788 3.1413135928523612
   controller "my_controller"
   controllerArgs [
     "demo"
   ]
+  supervisor TRUE
   bodySlot [
+    GPS {
+    }
+    Camera {
+      translation 0.050074 -0.01 -0.0807565
+      rotation 0 1 0 1.57
+    }
     DistanceSensor {
       translation 0.29 0 0
       rotation 1 0 0 1.57
       lookupTable [
         0 0 0
         10 10000 0
+      ]
+    }
+  ]
+}
+DEF Carpet Pose {
+  translation -0.75001 -2.57 -0.0624775
+  rotation 6.17457808927593e-07 0.7071077811853963 0.7071057811860152 3.14159
+  children [
+    Transform {
+      translation -0.4 0.060000000000000005 0
+      scale 0.5 0.5 0.5
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 1 1 1
+            }
+          }
+          geometry Box {
+            size 0.2 0.01 0.2
+          }
+        }
+      ]
+    }
+    Transform {
+      translation -0.2 0.060000000000000005 0
+      scale 0.5 0.5 0.5
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 0 1 0
+            }
+          }
+          geometry Box {
+            size 0.2 0.01 0.2
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0 0.060000000000000005 0
+      scale 0.5 0.5 0.5
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 0 0 1
+            }
+          }
+          geometry Box {
+            size 0.2 0.01 0.2
+          }
+        }
+      ]
+    }
+    Transform {
+      translation 0.20000000000000007 0.060000000000000005 0
+      scale 0.5 0.5 0.5
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 1 1 0
+            }
+          }
+          geometry Box {
+            size 0.2 0.01 0.2
+          }
+        }
       ]
     }
   ]
