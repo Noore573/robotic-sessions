@@ -541,6 +541,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.step(50 * self.timestep)
         self.finger1.setPosition(0.0)
         self.finger2.setPosition(0.0)
+        self.step(10 * self.timestep)
         self.armMotors[3].setPosition(0)
         self.armMotors[2].setPosition(0)
         self.armMotors[1].setPosition(0)
@@ -637,6 +638,9 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             self.release_box()
             self.StandStill()
             self.CallEmitter()
+            # self.StandStill()
+            # self.navigate_to_sector("Center")
+            break
             
             # ---------------------------
             

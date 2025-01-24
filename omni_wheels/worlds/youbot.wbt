@@ -5,6 +5,7 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/floors/protos/Floor.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/Youbot.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/robots/kuka/youbot/protos/KukaBox.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2023b/projects/objects/apartment_structure/protos/Wall.proto"
 
 WorldInfo {
   info [
@@ -40,8 +41,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation -0.34790271018037694 -0.4709991121236196 0.8106315689805761 4.805255089767794
-  position 0.9519717506028518 3.459910669825706 4.280452828606091
+  orientation -0.5732148051369688 -0.6016566122211452 0.5562680182631046 4.1985455721459
+  position 0.5270054677953333 0.45396980349684635 6.125415299690563
   follow "youBot"
 }
 TexturedBackground {
@@ -69,6 +70,28 @@ Floor {
     }
   }
 }
+Wall {
+  translation 0.89 0 -0.16
+  size 0.1 0.3 0.2
+}
+Wall {
+  translation 0.98 0.109998 -0.18
+  rotation 0 0 1 1.5708
+  name "wall(1)"
+  size 0.1 0.3 0.2
+}
+Wall {
+  translation 0.98 -0.050002 -0.18
+  rotation 0 0 1 1.5708
+  name "wall(2)"
+  size 0.1 0.3 0.2
+}
+Wall {
+  translation 1.05 0.00999838 -0.16
+  rotation 0 0 1 5.307156870259904e-06
+  name "wall(3)"
+  size 0.1 0.3 0.2
+}
 Transform {
   scale 0.5 0.5 0.5
   children [
@@ -82,38 +105,44 @@ Transform {
   scale 0.1 0.1 0.1
 }
 Youbot {
-  hidden position_0_0 74.9494244210678
-  hidden position_0_1 7.586626883108762
-  hidden position_0_2 74.94946102833883
-  hidden position_0_3 7.5866617015979
-  hidden position_15_0 1.1448674704471302e-05
-  hidden rotation_16 0 0 1 1.1448669883841712e-05
-  hidden position_16_0 -0.500011212917769
-  hidden rotation_17 0 0.9999999999999999 0 0.5000112129177694
-  hidden position_17_0 -0.9500067721890848
-  hidden rotation_18 0 1 0 0.9500067721890849
-  hidden position_18_0 -1.1250015817571848
-  hidden rotation_19 0 1 0 1.125001581757185
-  hidden position_19_0 6.36169599365278e-07
-  hidden rotation_20 0 0 1 6.364034564513776e-07
-  hidden position_20_0 0.025008096027305977
-  hidden position_20_1 0.00023394935723725823
-  hidden translation_21 0 0.025008096027305977 0.09
-  hidden translation_22 0 -0.00023394935723725823 0.09
-  hidden position_23_0 -3.2039597138250423e-09
-  hidden position_24_0 2.1671855214210665e-07
-  hidden rotation_25 0 -1 0 2.1696418193818693e-07
-  hidden position_25_0 4.798367924708988e-10
-  hidden position_26_0 2.301123182895794e-09
-  hidden position_27_0 5.014754750670357e-10
-  hidden position_28_0 1.2384547947006983e-11
-  hidden position_28_1 -5.554173262016953e-12
-  hidden rotation_31 0 -1 0 0.44879926508723433
-  hidden rotation_32 0 -1 0 4.9797437312504105
-  hidden rotation_33 0 -1 0 0.44876265781620633
-  hidden rotation_34 0 -1 0 4.979708912761273
-  translation 0.8892070792929078 -1.6326291240025737 0.10120014607869576
-  rotation -0.0008796654436729138 0.0010955540641422988 0.9999990129745129 1.3744886713160887
+  hidden position_0_0 76.95701896828106
+  hidden position_0_1 7.3637351594571605
+  hidden position_0_2 76.95705728735521
+  hidden position_0_3 7.363771473928816
+  hidden position_15_0 0.012065859968906063
+  hidden rotation_16 0 0 0.9999999999999999 0.012065859968888823
+  hidden position_16_0 -0.5000146889963903
+  hidden rotation_17 0 1 0 0.5000146889963906
+  hidden position_17_0 -0.9500100906972446
+  hidden rotation_18 0 1 0 0.9500100906972444
+  hidden position_18_0 -1.1536164632983859
+  hidden rotation_19 0 1 0 1.1536164632983859
+  hidden position_19_0 2.341657322876342e-08
+  hidden rotation_20 0 0 1 2.9802322387695313e-08
+  hidden position_20_0 0.02511907363123728
+  hidden position_20_1 0.00032158707967214564
+  hidden translation_21 0 0.02511907363123728 0.09
+  hidden translation_22 0 -0.00032158707967214564 0.09
+  hidden position_23_0 -6.48791093812998e-06
+  hidden rotation_24 0 0 -1 6.487877285096047e-06
+  hidden position_24_0 -3.4775011886375518e-06
+  hidden rotation_25 0 1 0 3.4775619854489944e-06
+  hidden position_25_0 -1.4864005136062074e-06
+  hidden rotation_26 0 1 0 1.4865355388331666e-06
+  hidden position_26_0 -3.407965390980154e-07
+  hidden rotation_27 0 1 0 3.4110317058144843e-07
+  hidden position_27_0 -9.368632085595208e-08
+  hidden rotation_28 0 0 -0.9999999999999999 9.424321830774485e-08
+  hidden position_28_0 5.302287978130794e-06
+  hidden position_28_1 6.2548946594986e-06
+  hidden translation_29 0 5.302287978130794e-06 0.09
+  hidden translation_30 0 -6.2548946594986e-06 0.09
+  hidden rotation_31 0 1 0 1.5587952821260245
+  hidden rotation_32 0 -1 0 5.202635454902012
+  hidden rotation_33 0 1 0 1.5588336012001747
+  hidden rotation_34 0 -1 0 5.202599140430357
+  translation 0.891156547456969 -1.6000536717675164 0.10120257459299678
+  rotation 0.002200657828040458 -0.0028774180178712085 0.9999934387638122 1.5234194492330815
   controller "my_controller"
   controllerArgs [
     "demo"
@@ -121,6 +150,7 @@ Youbot {
   supervisor TRUE
   bodySlot [
     Emitter {
+      channel 1
     }
     Camera {
       translation 0.285 -0.01 -0.0959809
@@ -198,8 +228,8 @@ Youbot {
   numberOfArms 2
 }
 KukaBox {
-  translation 0.9799255369824253 -1.1100444936909386 0.21306238245327938
-  rotation 0.9655213892681707 -0.10523246760680252 -0.2381062255108941 0.6256880056333052
+  translation 0.8984802358583555 -1.0755389917416551 0.2127595273166515
+  rotation 0.9995287681240221 -0.02839776925856303 0.011653685838073016 0.5850938381046694
   name "red"
   color 1 0 0
   size 0.05 0.05 0.05
@@ -284,32 +314,32 @@ DEF Carpet Pose {
   ]
 }
 Youbot {
-  hidden position_0_0 -7.875291230444916e-10
-  hidden position_0_1 -7.899307874481565e-10
-  hidden position_0_2 -7.910898602858651e-10
-  hidden position_0_3 7.973016737123319e-10
-  hidden position_16_0 -1.1472247685162529e-06
-  hidden rotation_17 0 0 -1 1.147292647058989e-06
-  hidden position_17_0 1.0744246855301746e-07
-  hidden rotation_18 0 -0.9999999999999999 0 1.0745380149674385e-07
-  hidden position_18_0 1.6538867777001904e-07
-  hidden rotation_19 0 -1 0 1.6593230851978133e-07
-  hidden position_19_0 -3.5850789004143735e-10
-  hidden position_20_0 -7.850786687413347e-11
-  hidden position_21_0 -1.1351332928090613e-11
-  hidden position_21_1 1.1353675008484369e-11
-  hidden position_24_0 -1.1391161205409617e-06
-  hidden rotation_25 0 0 -0.9999999999999999 1.139135053969422e-06
-  hidden position_25_0 -1.0693245299798698e-07
-  hidden rotation_26 0 1 0 1.0745380149674385e-07
-  hidden position_26_0 -1.6561873196356448e-07
-  hidden rotation_27 0 1 0 1.6593230851978133e-07
-  hidden position_27_0 3.5710394310022414e-10
-  hidden position_28_0 7.822227872356489e-11
-  hidden position_29_0 1.167648050484507e-11
-  hidden position_29_1 -1.1674138632144148e-11
-  translation 2.5620619501737627 2.7715240121362363 0.10123399522059479
-  rotation -0.0002764124903314586 1.9325753641670967e-05 0.9999999616113245 -3.140000001990594
+  hidden position_0_0 -1.5163538884194642e-09
+  hidden position_0_1 -6.102858768833053e-11
+  hidden position_0_2 -5.444867724981437e-11
+  hidden position_0_3 5.994979498901298e-11
+  hidden position_16_0 -8.111282032273128e-08
+  hidden rotation_17 0 0 -1 7.884953353001448e-08
+  hidden position_17_0 2.0732939399795292e-07
+  hidden rotation_18 0 -1 0 2.0647654623614288e-07
+  hidden position_18_0 3.193057470614639e-07
+  hidden rotation_19 0 -1 0 3.1959430261741937e-07
+  hidden position_19_0 -6.734624972116932e-10
+  hidden position_20_0 -5.329714010536212e-12
+  hidden position_21_0 -2.1944929863655797e-11
+  hidden position_21_1 1.0959936029206045e-11
+  hidden position_24_0 -2.196722759756097e-06
+  hidden rotation_25 0 0 -1 2.1966960086073053e-06
+  hidden position_25_0 -2.0641258400277883e-07
+  hidden rotation_26 0 1 0 2.0647654623614288e-07
+  hidden position_26_0 -3.197018938286825e-07
+  hidden rotation_27 0 1 0 3.1959430261741937e-07
+  hidden position_27_0 6.69671101330429e-10
+  hidden position_28_0 1.50787469603172e-10
+  hidden position_29_0 1.1395180315557344e-11
+  hidden position_29_1 -2.2097070148988484e-11
+  translation 2.5620619503879234 2.771524012391467 0.10123382393917135
+  rotation -0.00027641142589992547 1.932708956837743e-05 0.9999999616115929 -3.1400000019906504
   name "SecBot"
   controller "SecController"
   controllerArgs [
@@ -330,7 +360,7 @@ Youbot {
       ]
     }
     Camera {
-      translation 0.285 -0.01 -0.0959809
+      translation 0.285 -0.01 -0.0559809
       rotation 0 -1 0 4.6928012867022945e-06
       name "front-camera"
       physics Physics {

@@ -79,8 +79,8 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             "Blue": [-0.6875144492298266, -1.5710764570773796],  
             "Green": [-0.6875144492298266, -3.5710764570773796], #-0.6875144492298266, -2.5710764570773796 
             "Yellow": [-0.6342484573122082, -2.627330050096285],  
-            "Center":[0.9342484573122082, -2.627330050096285], #to go back to the center
-            "Wall":[0.9342484573122082, -0.167330050096285] #wall
+            "Center":[1.3509613546722655, 2.769092597857557], #to go back to the center
+            "Wall":[1.0342484573122082, 0.169092597857557] #wall
         }
         self.emitter = self.getDevice('emitter')  # Get the emitter device
         self.emitter.setChannel(1)  
@@ -597,35 +597,21 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
     def move_forward(self, velocity):
         self.set_motors_velocity(velocity, velocity, velocity, velocity)
 
-    def move_backward(self, velocity):
-        self.set_motors_velocity(-velocity, -velocity, -velocity, -velocity)
 
-    def move_left(self, velocity):
-        self.front_right_wheel.setVelocity(velocity)
-        self.front_left_wheel.setVelocity(-velocity)
-        self.back_left_wheel.setVelocity(velocity)
-        self.back_right_wheel.setVelocity(-velocity)
+    def run(self):
+        while self.step(self.timestep) != -1:
+            # print("Performing task as the second robot...")
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.detect_and_pick_box()
+            # self.move_forward(YOU_VELOCITY)
+            # self.get_camera_image()
+            current_pos = self.get_position()
 
-    def move_right(self, velocity):
-        self.front_right_wheel.setVelocity(-velocity)
-        self.front_left_wheel.setVelocity(velocity)
-        self.back_left_wheel.setVelocity(-velocity)
-        self.back_right_wheel.setVelocity(velocity)
+            print(current_pos)
 
-    def turn_cw(self, velocity):
-        self.front_right_wheel.setVelocity(-velocity)
-        self.front_left_wheel.setVelocity(velocity)
-        self.back_left_wheel.setVelocity(velocity)
-        self.back_right_wheel.setVelocity(-velocity)
-
-    def turn_ccw(self, velocity):
-        self.front_right_wheel.setVelocity(velocity)
-        self.front_left_wheel.setVelocity(-velocity)
-        self.back_left_wheel.setVelocity(-velocity)
-        self.back_right_wheel.setVelocity(velocity)
-    def perform_task(self):
-        # Placeholder for the task to be executed by the second robot
-        print("Performing task as the second robot...")
     def listen_for_signal(self):
         # Check if there's a message received
         if self.receiver.getQueueLength() > 0:
@@ -636,7 +622,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             if message == "Come baby come":
                 print("Second robot activated!")
                 # Run the code for the second robot here
-                self.perform_task()
+                self.run()
 
             self.receiver.nextPacket()  # Clear the received message from the queue
 
