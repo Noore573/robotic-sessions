@@ -8,5 +8,7 @@ orthographicViewHeight: 1
 textFiles: 0 "controllers/my_controller/my_controller.py"
 globalOptionalRendering: DistanceSensorRays::AllBoundingObjects
 consoles: Console:All:All
+renderingDevicePerspectives: SecBot:camera;1;1;0;0
+renderingDevicePerspectives: SecBot:front-camera;1;1;0;0
 renderingDevicePerspectives: youBot:camera;1;1;0;0
 renderingDevicePerspectives: youBot:front-camera;1;1;0;0

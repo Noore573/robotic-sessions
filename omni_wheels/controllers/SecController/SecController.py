@@ -84,6 +84,9 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         }
         self.emitter = self.getDevice('emitter')  # Get the emitter device
         self.emitter.setChannel(1)  
+        self.receiver = self.getDevice('receiver')  # Get the receiver device
+        self.receiver.setChannel(1)                # Set the channel (must match emitter)
+        self.receiver.enable(64)  
         
 
         # Set motors to infinite position and initialize velocity
@@ -544,8 +547,8 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.armMotors[3].setPosition(0)
         self.armMotors[2].setPosition(0)
         self.armMotors[1].setPosition(0)
-        self.step(20 * self.timestep)
-        # self.step(100 * self.timestep)
+        self.step(50 * self.timestep)
+        self.step(100 * self.timestep)
         print("Released the box!")
     def CallEmitter(self):
         # Send a signal to the second robot
@@ -620,72 +623,26 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.front_left_wheel.setVelocity(-velocity)
         self.back_left_wheel.setVelocity(-velocity)
         self.back_right_wheel.setVelocity(velocity)
+    def perform_task(self):
+        # Placeholder for the task to be executed by the second robot
+        print("Performing task as the second robot...")
+    def listen_for_signal(self):
+        # Check if there's a message received
+        if self.receiver.getQueueLength() > 0:
+            message = self.receiver.getString()  # Directly get the string message
+            print(f"Message received: {message}")
+
+            # Process the message
+            if message == "Come baby come":
+                print("Second robot activated!")
+                # Run the code for the second robot here
+                self.perform_task()
+
+            self.receiver.nextPacket()  # Clear the received message from the queue
 
     def loop(self):
         while self.step(self.timestep) != -1:
-            # ---------------------------
-            # for one box
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Yellow")
-            # self.StandStill()
-            # self.detect_and_pick_box()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            self.navigate_to_sector("Wall")
-            self.StandStill()
-            self.release_box()
-            self.StandStill()
-            self.CallEmitter()
-            
-            # ---------------------------
-            
-            # for box test
-            # ---------------------------------------
-            # self.detect_and_pick_box()
-            # ---------------------------------------
-        
-
-            
-            # self.navigate_to_sector("Center")
-
-            # self.StandStill()
-            # self.navigate_to_sector("Yellow")
-            # self.StandStill()
-            # self.detect_and_pick_box()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Wall")
-            # self.StandStill()
-            # self.move_box_from_inv_to_front()
-            # self.StandStill()
-            
-            
-            
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Wall")
-            # self.StandStill()
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Red")
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            
-            # self.navigate_to_sector("Green")
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Blue")
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.move_forward(YOU_VELOCITY)
-            
-            # self.get_camera_image()
-            # current_pos = self.get_position()
-            # print(current_pos)
+            self.listen_for_signal()
 
 
 # Instantiate and run the controller
