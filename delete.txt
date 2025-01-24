@@ -45,23 +45,13 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.back_left_wheel = self.getDevice("wheel4")
 
         # Initialize arm and finger
-        self.armMotors = [self.getDevice(f"arm{i}") for i in range(1, 6)]
-        for motor in self.armMotors:
-            motor.setVelocity(1.5)
-        # self.armMotors[1].setPosition(-1)
-        # self.armMotors[2].setPosition(-1)
-        # self.armMotors[3].setPosition(-1.4)
-
-        self.armPositionSensors = [self.getDevice(f"arm{i}sensor") for i in range(1, 6)]
-        for sensor in self.armPositionSensors:
-            sensor.enable(self.timestep)
-        self.finger1 = self.getDevice("finger::left")
-        self.finger2 = self.getDevice("finger::right")
-        self.finger1.setVelocity(1.5)
-        self.finger2.setVelocity(1.5)
-        self.fingerMinPosition = self.finger1.getMinPosition()
-        self.fingerMaxPosition = self.finger1.getMaxPosition()
-        
+        self.arm1 = self.getDevice("arm1")
+        self.arm2 = self.getDevice("arm2")
+        self.arm3 = self.getDevice("arm3")
+        self.arm4 = self.getDevice("arm4")
+        self.arm5 = self.getDevice("arm5")
+        self.fingerL = self.getDevice("finger::left")
+        self.fingerR = self.getDevice("finger::right")
         self.camera = self.getDevice("camera")
         self.camera.enable(self.timestep)
         self.camera = self.getDevice("front-camera")
@@ -85,9 +75,9 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         
 
         # Set motors to infinite position and initialize velocity
-        # for motor in [self.arm1, self.arm2, self.arm3, self.arm4, self.arm5, self.fingerL,self.fingerR]:
-        #     motor.setPosition(float("inf"))
-        #     motor.setVelocity(0)
+        for motor in [self.arm1, self.arm2, self.arm3, self.arm4, self.arm5, self.fingerL,self.fingerR]:
+            motor.setPosition(float("inf"))
+            motor.setVelocity(0)
 
         for wheel in [self.front_right_wheel, self.front_left_wheel, self.back_right_wheel, self.back_left_wheel]:
             wheel.setPosition(float("inf"))
@@ -369,8 +359,63 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         # get box 
         print("Standing still")
         time.sleep(1)
-    
-    
+    def detect_box(self):
+        """
+        Detect the location of the box using the robot's camera.
+        Returns:
+            (x, y): Relative coordinates of the box in the robot's frame of reference.
+        """
+        print("Detecting the box...")
+
+        # Capture image from the camera
+        camera_image = self.camera.getImage()
+        width, height = self.camera.getWidth(), self.camera.getHeight()
+
+        # Loop through the image to find the target color (e.g., red)
+        for y in range(height):
+            for x in range(width):
+                r = self.camera.imageGetRed(camera_image, width, x, y)
+                g = self.camera.imageGetGreen(camera_image, width, x, y)
+                b = self.camera.imageGetBlue(camera_image, width, x, y)
+
+                # Detect red color (tune threshold values as needed)
+                if r > 200 and g < 50 and b < 50:
+                    print(f"Box detected at pixel coordinates: ({x}, {y})")
+
+                    # Convert pixel coordinates to robot-relative coordinates
+                    box_x = (x - width / 2) * self.camera_fov_x / width
+                    box_y = (y - height / 2) * self.camera_fov_y / height
+                    return box_x, box_y
+
+        print("Box not detected.")
+        return None
+    def detect_box_proximity(self):
+        """
+        Automatically detect the box location using proximity sensors.
+        Returns:
+            (x, y): Relative coordinates of the box in the robot's frame of reference.
+        """
+        print("Searching for the box using proximity sensors...")
+
+        # Rotate the robot in place to scan the area
+        for _ in range(360):  # Rotate full circle (adjust step size for finer detection)
+            self.set_motors_velocity(1, -1, 1, -1)  # Rotate in place
+
+            # Check proximity sensors
+            front_distance = self.front_proximity_sensor.getValue()
+            side_distance = self.side_proximity_sensor.getValue()
+
+            # If an object is detected, estimate its position
+            if front_distance < 0.2:  # Adjust threshold for box detection
+                box_x = front_distance
+                box_y = 0  # Centered in front of the robot
+                self.set_motors_velocity(0, 0, 0, 0)  # Stop rotating
+                print(f"Box detected at relative coordinates: ({box_x}, {box_y})")
+                return box_x, box_y
+
+        print("Box not found.")
+        self.set_motors_velocity(0, 0, 0, 0)  # Stop rotating if not found
+        return None
 
     def detect_box_camera(self):
         """
@@ -422,29 +467,70 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.set_motors_velocity(0, 0, 0, 0)
         print("Box not found after 360-degree rotation.")
         return None
+
+
+    def move_to_box(self, box_coordinates):
+        """
+        Move the robot to the detected box location.
+        Args:
+            box_coordinates (tuple): Relative (x, y) coordinates of the box.
+        """
+        box_x, box_y = box_coordinates
+
+        print("Moving to the box...")
+        self.rotate_to_world_angle((box_x, box_y))  # Rotate to face the box
+        self.set_motors_velocity(5, 5, 5, 5)  # Move forward
+        self.set_motors_velocity(0, 0, 0, 0)  # Stop once close
+    # def pick_box(self):
+    #     """
+    #     Pick the box using the robot's gripper.
+    #     """
+    #     print("Picking up the box...")
+    #     self.gripper.close()  # Assuming the gripper has a close() function
     def pick_box(self):
-        print("Picking up box...")
-        self.armMotors[1].setPosition(-1.13)
-        self.armMotors[2].setPosition(-0.95)
-        self.armMotors[3].setPosition(-1.125)
-        self.finger1.setPosition(self.fingerMaxPosition)
-        self.finger2.setPosition(self.fingerMaxPosition)
-        self.step(50 * self.timestep)
-        self.finger1.setPosition(0.0)
-        self.finger2.setPosition(0.0)
-        self.step(50 * self.timestep)
-        self.armMotors[1].setPosition(0)
-        self.step(100 * self.timestep)
- 
-    def detect_and_pick_box(self):
-        # Detect the box
-        result = self.detect_box_camera()
-        if result:
-            angle_to_box, distance_to_box = result
-            self.pick_box()
-            print("Box picked up!")
+        print("pick box")
+        self.arm1.setPosition(-1.5)
+        self.arm2.setPosition(-0.95)
+        self.arm3.setPosition(-1.125)
+        # self.fingerL.setPosition(self.fingerMaxPosition)
+        # self.fingerR.setPosition(self.fingerMaxPosition)
+        # self.step(50 * self.timestep)
+        # self.fingerL.setPosition(0.0)
+        # self.fingerR.setPosition(0.0)
+        # self.step(50 * self.timestep)
+        # self.arm1.setPosition(0)
+        # self.step(100 * self.timestep)
 
-
+    def move_to_kuka_surface(self):
+        """
+        Move to the predefined KUKA surface location to place the box.
+        """
+        print("Moving to the KUKA surface...")
+        surface_coordinates = (0.5, 0.5)  # Example coordinates of the surface
+        self.rotate_to_world_angle(surface_coordinates)
+        self.set_motors_velocity(5, 5, 5, 5)  # Move forward
+        self.set_motors_velocity(0, 0, 0, 0)  # Stop once close
+    # ultimate function
+    def pick_and_place_box(self):
+        """
+        Full procedure to detect, pick, and place the box.
+        """
+        # Step 1: Detect the box (automatically)
+        box_coordinates = self.detect_box_camera()  # Or self.detect_box_camera()
+        if not box_coordinates:
+            print("Error: Box not found!")
+            return
+    
+        # Step 2: Move to the box and pick it up
+        # self.move_to_box(box_coordinates)
+        self.pick_box()
+    
+        # Step 3: Move to the KUKA surface and place the box
+        # self.move_to_kuka_surface()
+        # self.place_box()
+    
+        print("Operation complete!")
+    
 
 
 
@@ -520,11 +606,11 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             
             # for box test
             # ---------------------------------------
-            self.detect_and_pick_box()
+            self.pick_and_place_box()
             # ---------------------------------------
-            # self.get_camera_image()
-            # current_pos = self.get_position()
-            # print(current_pos)
+            self.get_camera_image()
+            current_pos = self.get_position()
+            print(current_pos)
 
 
 # Instantiate and run the controller
