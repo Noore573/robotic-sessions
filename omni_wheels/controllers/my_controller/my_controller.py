@@ -75,12 +75,12 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.reached_distance=False
         
         self.sector_coordinates = {
-            "Red": [-2.2667124380443266,-2.565634251025668],
+            "Red": [-2.2342484573122082, -2.627330050096285],
             "Blue": [-0.6875144492298266, -1.5710764570773796],  
             "Green": [-0.6875144492298266, -3.5710764570773796], #-0.6875144492298266, -2.5710764570773796 
-            "Yellow": [-0.6875144492298266,-2.565634251025668],  
-            "Center":[1.126883240023495, -2.565634251025668], #to go back to the center
-            "Wall":[1.126883240023495, -0.165634251025668] #wall
+            "Yellow": [-0.6342484573122082, -2.627330050096285],  
+            "Center":[0.9342484573122082, -2.627330050096285], #to go back to the center
+            "Wall":[0.9342484573122082, -0.167330050096285] #wall
         }
         
 
@@ -433,7 +433,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.finger1.setPosition(0.0)
         self.finger2.setPosition(0.0)
         self.step(50 * self.timestep)
-        self.armMotors[1].setPosition(0)
+        self.armMotors[1].setPosition(-0.5)
         self.step(100 * self.timestep)
     def drop_box_in_inv(self):
         """
@@ -466,7 +466,87 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.step(100 * self.timestep)
      
         print("Box successfully dropped!")
-     
+    # get from inv
+    def pick_box_from_inv(self):
+        """
+        Pick the box from the inventory surface area.
+        """
+        print("Picking up the box from the inventory...")
+
+        # Move the arm to the inventory position
+        print("Moving arm to inventory position...")
+        self.armMotors[1].setPosition(+0.75)  # Adjust height
+        self.step(30 * self.timestep)
+        self.armMotors[2].setPosition(+0.75)  # Adjust forward reach
+        self.step(30 * self.timestep)
+        self.armMotors[3].setPosition(+1.45)  # Lower arm to grab the box
+        self.step(100 * self.timestep)
+
+        # Close the gripper to grab the box
+        print("Gripping the box...")
+        self.finger1.setPosition(0.0)
+        self.finger2.setPosition(0.0)
+        self.step(50 * self.timestep)
+
+        # Lift the box slightly
+        print("Lifting the box...")
+        self.armMotors[3].setPosition(0.5)
+        self.step(50 * self.timestep)
+
+        print("Box picked up from the inventory!")
+        
+    def drop_box_at_front(self):
+        """
+        Drop the box at the front of the robot.
+        """
+        print("Dropping the box at the front...")
+
+        # Move the arm to the front drop-off position
+        print("Moving arm to front position...")
+        self.armMotors[1].setPosition(-0.4)  # Adjust height (lower arm)
+        self.step(30 * self.timestep)
+        self.armMotors[2].setPosition(0.2)  # Adjust forward reach
+        self.step(30 * self.timestep)
+        self.armMotors[3].setPosition(-1.0)  # Lower arm over the front surface
+        self.step(100 * self.timestep)
+
+        # Open the gripper to release the box
+        print("Releasing the box...")
+        self.finger1.setPosition(self.fingerMaxPosition)
+        self.finger2.setPosition(self.fingerMaxPosition)
+        self.step(50 * self.timestep)
+
+        # Reset the arm to its default (home) position
+        print("Resetting the arm to the default position...")
+        self.armMotors[1].setPosition(0.0)
+        self.armMotors[2].setPosition(0.0)
+        self.armMotors[3].setPosition(0.0)
+        self.step(100 * self.timestep)
+
+        print("Box successfully dropped at the front!")
+
+    def release_box(self):
+        print("Releasing the box...")
+        self.step(10 * self.timestep)
+        self.armMotors[1].setPosition(-1.13)
+        self.step(20 * self.timestep)
+        self.armMotors[2].setPosition(-0.95)
+        self.step(20 * self.timestep)
+        self.armMotors[3].setPosition(-1.125)
+        self.step(20 * self.timestep)
+        self.finger1.setPosition(self.fingerMaxPosition)
+        self.finger2.setPosition(self.fingerMaxPosition)
+        self.step(50 * self.timestep)
+        self.finger1.setPosition(0.0)
+        self.finger2.setPosition(0.0)
+        self.armMotors[3].setPosition(0)
+        self.armMotors[2].setPosition(0)
+        self.armMotors[1].setPosition(0)
+        self.step(50 * self.timestep)
+        self.step(100 * self.timestep)
+        print("Released the box!")
+
+         
     def detect_and_pick_box(self):
         # Detect the box
         result = self.detect_box_camera()
@@ -475,8 +555,21 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             self.pick_box()
             print("Box picked up!")
             # Move to the drop zone and drop the box
-            self.drop_box_in_inv()
-            print("Box dropped in the inventory!")
+            # self.drop_box_in_inv()
+            # print("Box dropped in the inventory!")
+    def move_box_from_inv_to_front(self):
+        """
+        Complete process to pick the box from the inventory and drop it at the front.
+        """
+        print("Starting process to move box from inventory to front...")
+
+        # Pick the box from the inventory
+        self.pick_box_from_inv()
+
+        # Drop the box at the front
+        self.drop_box_at_front()
+
+        print("Box successfully moved from inventory to the front!")
 
 
 
@@ -524,22 +617,39 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def loop(self):
         while self.step(self.timestep) != -1:
-            # for box test
-            # ---------------------------------------
-            self.detect_and_pick_box()
-            # ---------------------------------------
-
-            
-            self.navigate_to_sector("Center")
-
-            self.StandStill()
-            self.navigate_to_sector("Yellow")
-            self.StandStill()
-            self.detect_and_pick_box()
-            self.navigate_to_sector("Center")
-            self.StandStill()
+            # ---------------------------
+            # for one box
+            # self.navigate_to_sector("Center")
+            # self.StandStill()
+            # self.navigate_to_sector("Yellow")
+            # self.StandStill()
+            # self.detect_and_pick_box()
+            # self.navigate_to_sector("Center")
+            # self.StandStill()
             self.navigate_to_sector("Wall")
             self.StandStill()
+            self.release_box()
+            
+            # ---------------------------
+            
+            # for box test
+            # ---------------------------------------
+            # self.detect_and_pick_box()
+            # ---------------------------------------
+        
+
+            
+            # self.navigate_to_sector("Center")
+
+            # self.StandStill()
+            # self.navigate_to_sector("Yellow")
+            # self.StandStill()
+            # self.detect_and_pick_box()
+            # self.navigate_to_sector("Center")
+            # self.StandStill()
+            # self.navigate_to_sector("Wall")
+            # self.StandStill()
+            # self.move_box_from_inv_to_front()
             # self.StandStill()
             
             
