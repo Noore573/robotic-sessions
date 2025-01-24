@@ -435,7 +435,38 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.step(50 * self.timestep)
         self.armMotors[1].setPosition(0)
         self.step(100 * self.timestep)
- 
+    def drop_box_in_inv(self):
+        """
+        Drop the box onto the inventory surface area.
+        """
+        print("Dropping the box onto the inventory...")
+     
+        # Move the arm to the drop-off position
+        # Adjust these positions to match the inventory's location
+        print("moving 1")
+        self.armMotors[1].setPosition(+0.6)
+        self.step(30 * self.timestep)
+        print("moving 2")
+        self.armMotors[2].setPosition(+0.6)
+        self.step(30 * self.timestep)
+        print("moving 3")
+        self.armMotors[3].setPosition(+1.3)
+        self.step(100 * self.timestep)
+     
+        # Open the gripper to release the box
+        self.finger1.setPosition(self.fingerMaxPosition)
+        self.finger2.setPosition(self.fingerMaxPosition)
+        self.step(50 * self.timestep)
+     
+        # Reset the arm to its default (home) position
+        print("Resetting the arm to the default position...")
+        self.armMotors[1].setPosition(0.0)
+        self.armMotors[2].setPosition(0.0)
+        self.armMotors[3].setPosition(0.0)
+        self.step(100 * self.timestep)
+     
+        print("Box successfully dropped!")
+     
     def detect_and_pick_box(self):
         # Detect the box
         result = self.detect_box_camera()
@@ -443,6 +474,9 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             angle_to_box, distance_to_box = result
             self.pick_box()
             print("Box picked up!")
+            # Move to the drop zone and drop the box
+            self.drop_box_in_inv()
+            print("Box dropped in the inventory!")
 
 
 
@@ -490,13 +524,26 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def loop(self):
         while self.step(self.timestep) != -1:
+            # for box test
+            # ---------------------------------------
+            self.detect_and_pick_box()
+            # ---------------------------------------
 
             
-            # self.navigate_to_sector("Center")
+            self.navigate_to_sector("Center")
 
+            self.StandStill()
+            self.navigate_to_sector("Yellow")
+            self.StandStill()
+            self.detect_and_pick_box()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
             # self.StandStill()
-            # self.navigate_to_sector("Yellow")
-            # self.StandStill()
+            
+            
+            
             # self.navigate_to_sector("Center")
             # self.StandStill()
             # self.navigate_to_sector("Wall")
@@ -518,10 +565,6 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             # self.navigate_to_sector("Center")
             # self.move_forward(YOU_VELOCITY)
             
-            # for box test
-            # ---------------------------------------
-            self.detect_and_pick_box()
-            # ---------------------------------------
             # self.get_camera_image()
             # current_pos = self.get_position()
             # print(current_pos)
