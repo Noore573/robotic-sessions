@@ -5,7 +5,7 @@ import json
 import numpy as np
 # center
 #[1.1851988573892502, -2.5800691309387913, 0.10193773101325956]
-
+color_matrixx = [] 
 YOU_VELOCITY=14.0
 reached_distance_Threshold=0.3
 
@@ -62,8 +62,8 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.fingerMinPosition = self.finger1.getMinPosition()
         self.fingerMaxPosition = self.finger1.getMaxPosition()
         
-        self.camera = self.getDevice("camera")
-        self.camera.enable(self.timestep)
+        self.camera_bottom = self.getDevice("camera")
+        self.camera_bottom.enable(self.timestep)
         self.camera = self.getDevice("front-camera")
         self.camera.enable(self.timestep)
         
@@ -75,11 +75,11 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.reached_distance=False
         
         self.sector_coordinates = {
-            "Red": [-2.2342484573122082, -2.627330050096285],
-            "Blue": [-0.6875144492298266, -1.5710764570773796],  
-            "Green": [-0.6875144492298266, -3.5710764570773796], #-0.6875144492298266, -2.5710764570773796 
-            "Yellow": [-0.6342484573122082, -2.627330050096285],  
-            "Center":[0.9342484573122082, -2.627330050096285], #to go back to the center
+            "Red": [-2.073329050888169, -2.570625111558194],
+            "Blue": [-0.5725307377437417, -1.57287519101565],  
+            "Green": [-0.5725307377437417, -3.57287519101565], #-0.6875144492298266, -2.5710764570773796 
+            "Yellow": [-0.5725307377437417, -2.57287519101565],  
+            "Center":[1.0738674118287237, -2.5753436072422304], #to go back to the center
             "Wall":[0.9342484573122082, -0.167330050096285] #wall
         }
         self.emitter = self.getDevice('emitter')  # Get the emitter device
@@ -150,30 +150,45 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
                 print(f"Error: Insufficient colors in color_matrix for child {i}. Skipping.")
                 continue
     def get_camera_image(self):
+        """
+        Get the image from the camera, classify the top-left pixel color, 
+        and update the global color matrix with unique colors.
+        """
+        global color_matrixx  # Use the global color matrix
+
         # Get the image from the camera
-        image = self.camera.getImageArray()
+        image = self.camera_bottom.getImageArray()
         if image:
-            # Example: Print the first pixel's RGB values
-            pixel = image[0][0]  # Access the top-left pixel
-            # if pixel!=[180, 180, 180]:
-            #     print("First pixel RGB:", pixel)
+            # Access the top-left pixel
+            pixel = image[0][0]  
+            # Classify the color
+            detected_color = self.classify_color(pixel)
+
+            if detected_color and detected_color not in color_matrixx:
+                # Add the detected color to the matrix if it's not already present
+                color_matrixx.append(detected_color)
+                print(f"Added {detected_color} to color_matrix: {color_matrixx}")
+            
+            # Exit if we have 4 unique colors
+            if len(color_matrixx) == 4:
+                print("All 4 colors detected. Stopping...")
+                return "0"
         else:
             print("No image data available")
+
     def classify_color(self, rgb):
+        """
+        Classify the given RGB value into a specific color.
+        """
         r, g, b = rgb
         if r > 150 and g < 100 and b < 100:  
-            # print('red')
             return "Red"
         elif b > 150 and r < 100 and g < 100:
-            # print('blue')
             return "Blue"
         elif g > 150 and r < 100 and b < 100:
-            # print('green')
             return "Green"
         elif r > 150 and g > 150 and b < 100:
-            # print('yellow')
             return "Yellow"
-        # print('-')
         return None  # Not a classified color
     
 
@@ -395,26 +410,39 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             camera_image = self.camera.getImage()
             width, height = self.camera.getWidth(), self.camera.getHeight()
 
-            # Loop through the image to find the target color (e.g., red box)
+            # Loop through the image to find the target colors
             for y in range(height):
                 for x in range(width):
                     r = self.camera.imageGetRed(camera_image, width, x, y)
                     g = self.camera.imageGetGreen(camera_image, width, x, y)
                     b = self.camera.imageGetBlue(camera_image, width, x, y)
 
-                    # Detect red color (adjust thresholds as needed)
+                    # Detect red color
                     if r > 200 and g < 50 and b < 50:
+                        detected_color = "red"
+                    # Detect yellow color
+                    elif r > 200 and g > 200 and b < 50:
+                        detected_color = "yellow"
+                    # Detect green color
+                    elif r < 50 and g > 200 and b < 50:
+                        detected_color = "green"
+                    # Detect blue color
+                    elif r < 50 and g < 50 and b > 200:
+                        detected_color = "blue"
+                    else:
+                        detected_color = None
+
+                    if detected_color:
+                        print("Detected color: ",detected_color)
                         # Stop the robot
                         self.set_motors_velocity(0, 0, 0, 0)
 
                         # Calculate angle to the box
-                        # angle_to_box = (x - width / 2) * self.fieldOfView / width
                         angle_to_box = (x - width / 2) * self.camera.getFov() / width
-
                         distance_to_box = 1.0  # Placeholder distance value; estimate if needed
 
-                        print(f"Box detected at angle: {angle_to_box:.2f} radians")
-                        return angle_to_box, distance_to_box
+                        print(f"{detected_color.capitalize()} box detected at angle: {angle_to_box:.2f} radians")
+                        return detected_color, angle_to_box, distance_to_box
 
             # Update the total rotation based on angular velocity
             total_rotation += angular_velocity * timestep_seconds
@@ -424,6 +452,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.set_motors_velocity(0, 0, 0, 0)
         print("Box not found after 360-degree rotation.")
         return None
+
     def pick_box(self):
         print("Picking up box...")
         self.armMotors[1].setPosition(-1.13)
@@ -584,7 +613,12 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
 
 
-        
+    def get_color_matrix(self):
+        while self.step(self.timestep) != -1:
+            self.move_forward(YOU_VELOCITY)
+            value=self.get_camera_image()
+            if value=="0": break
+            
     def set_motors_velocity(self, wheel1_v, wheel2_v, wheel3_v, wheel4_v):
         # print(wheel1_v)
         self.front_right_wheel.setVelocity(wheel1_v)
@@ -633,14 +667,14 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             # self.detect_and_pick_box()
             # self.navigate_to_sector("Center")
             # self.StandStill()
-            self.navigate_to_sector("Wall")
-            self.StandStill()
-            self.release_box()
-            self.StandStill()
-            self.CallEmitter()
+            # self.navigate_to_sector("Wall")
+            # self.StandStill()
+            # self.release_box()
+            # self.StandStill()
+            # self.CallEmitter()
+            
             # self.StandStill()
             # self.navigate_to_sector("Center")
-            break
             
             # ---------------------------
             
@@ -665,26 +699,38 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             # self.StandStill()
             
             
+            # self.move_forward(YOU_VELOCITY)
+            self.get_color_matrix()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector(color_matrixx[0])
+            self.StandStill()
+            self.detect_and_pick_box()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.release_box()
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector(color_matrixx[1])
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
             
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Wall")
-            # self.StandStill()
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Red")
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
+            self.navigate_to_sector(color_matrixx[2])
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector(color_matrixx[3])
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.navigate_to_sector("Center")
             
-            # self.navigate_to_sector("Green")
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
-            # self.navigate_to_sector("Blue")
-            # self.StandStill()
-            # self.navigate_to_sector("Center")
             # self.move_forward(YOU_VELOCITY)
             
             # self.get_camera_image()

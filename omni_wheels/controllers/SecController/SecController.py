@@ -78,7 +78,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             "Red": [-2.2342484573122082, -2.627330050096285],
             "Blue": [-0.6875144492298266, -1.5710764570773796],  
             "Green": [-0.6875144492298266, -3.5710764570773796], #-0.6875144492298266, -2.5710764570773796 
-            "Yellow": [-0.6342484573122082, -2.627330050096285],  
+            "Yellow": [1.9509613546722655, 2.769092597857557],  
             "Center":[1.3509613546722655, 2.769092597857557], #to go back to the center
             "Wall":[1.0342484573122082, 0.169092597857557] #wall
         }
@@ -606,6 +606,18 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             self.navigate_to_sector("Wall")
             self.StandStill()
             self.detect_and_pick_box()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector("Yellow")
+            self.StandStill()
+            self.release_box()
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.CallEmitter()
+            
             # self.move_forward(YOU_VELOCITY)
             # self.get_camera_image()
             current_pos = self.get_position()
@@ -628,7 +640,8 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def loop(self):
         while self.step(self.timestep) != -1:
-            self.listen_for_signal()
+            # self.listen_for_signal()
+            break
 
 
 # Instantiate and run the controller
