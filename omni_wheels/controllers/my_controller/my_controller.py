@@ -3,11 +3,14 @@ import time
 from controller import Supervisor, Robot
 import json
 import numpy as np
+import cv2
+import numpy as np
 # center
 #[1.1851988573892502, -2.5800691309387913, 0.10193773101325956]
 color_matrixx = [] 
 YOU_VELOCITY=14.0
 reached_distance_Threshold=0.3
+detected_color=""
 
 def range_conversion(s_start, s_end, d_start, d_end, value):
     """
@@ -388,7 +391,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         time.sleep(1)
     
     
-
+    
     def detect_box_camera(self):
         """
         Automatically detect the box location using the existing camera by performing a 360-degree rotation.
@@ -559,12 +562,12 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
     def release_box(self):
         print("Releasing the box...")
         self.step(10 * self.timestep)
-        self.armMotors[1].setPosition(-1.13)
-        self.step(20 * self.timestep)
-        self.armMotors[2].setPosition(-0.95)
-        self.step(20 * self.timestep)
-        self.armMotors[3].setPosition(-1.125)
-        self.step(20 * self.timestep)
+        # self.armMotors[1].setPosition(-1.13)
+        # self.step(20 * self.timestep)
+        # self.armMotors[2].setPosition(-0.95)
+        # self.step(20 * self.timestep)
+        # self.armMotors[3].setPosition(-1.125)
+        # self.step(20 * self.timestep)
         self.finger1.setPosition(self.fingerMaxPosition)
         self.finger2.setPosition(self.fingerMaxPosition)
         self.step(50 * self.timestep)
@@ -577,17 +580,18 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.step(20 * self.timestep)
         # self.step(100 * self.timestep)
         print("Released the box!")
-    def CallEmitter(self):
+    def CallEmitter(self,detected_color):
         # Send a signal to the second robot
-        message = "Come baby come"
+        message = detected_color
         self.emitter.send(message.encode('utf-8'))  
-        print("Signal sent to the second robot.")
+        print("Signal sent to the second robot. the message:",detected_color)
          
     def detect_and_pick_box(self):
         # Detect the box
+        global detected_color
         result = self.detect_box_camera()
         if result:
-            angle_to_box, distance_to_box = result
+            detected_color,angle_to_box, distance_to_box = result
             self.pick_box()
             print("Box picked up!")
             # Move to the drop zone and drop the box
@@ -658,6 +662,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def loop(self):
         while self.step(self.timestep) != -1:
+            break
             # ---------------------------
             # for one box
             # self.navigate_to_sector("Center")
@@ -700,16 +705,22 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             
             
             # self.move_forward(YOU_VELOCITY)
-            self.get_color_matrix()
-            self.navigate_to_sector("Center")
+            # self.get_color_matrix()
+            # self.navigate_to_sector("Center")
+            # self.StandStill()
+            # self.navigate_to_sector(color_matrixx[0])
+            # self.StandStill()
+            # self.detect_and_pick_box()
+            # self.StandStill()
+            # self.navigate_to_sector("Center")
             self.StandStill()
-            self.navigate_to_sector(color_matrixx[0])
-            self.StandStill()
-            self.detect_and_pick_box()
             self.navigate_to_sector("Wall")
             self.StandStill()
             self.release_box()
             self.StandStill()
+            self.CallEmitter("Yellow")#color_matrixx[0]
+            self.StandStill()
+            break
             self.navigate_to_sector("Center")
             self.StandStill()
             self.navigate_to_sector(color_matrixx[1])

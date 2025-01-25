@@ -8,6 +8,7 @@ import numpy as np
 
 YOU_VELOCITY=14.0
 reached_distance_Threshold=0.3
+detected_color=""
 
 def range_conversion(s_start, s_end, d_start, d_end, value):
     """
@@ -26,17 +27,17 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         super().__init__()
         self.timestep = int(self.getBasicTimeStep())
 
-        # Load the color matrix from a JSON file
-        try:
-            with open("color_matrix.json", "r") as file:
-                print("Reading color matrix...")
-                data = json.load(file)
-                self.color_matrix = data.get("color_matrix")
-                if not self.color_matrix or not isinstance(self.color_matrix, list) or len(self.color_matrix[0]) != 4:
-                    raise ValueError("Invalid or missing 'color_matrix' in JSON. Ensure it has one row with 4 colors.")
-        except Exception as e:
-            print(f"Error reading color matrix: {e}")
-            exit(1)
+        # # Load the color matrix from a JSON file
+        # try:
+        #     with open("color_matrix.json", "r") as file:
+        #         print("Reading color matrix...")
+        #         data = json.load(file)
+        #         self.color_matrix = data.get("color_matrix")
+        #         if not self.color_matrix or not isinstance(self.color_matrix, list) or len(self.color_matrix[0]) != 4:
+        #             raise ValueError("Invalid or missing 'color_matrix' in JSON. Ensure it has one row with 4 colors.")
+        # except Exception as e:
+        #     print(f"Error reading color matrix: {e}")
+        #     exit(1)
 
         # Initialize wheels
         self.front_right_wheel = self.getDevice("wheel1")
@@ -79,8 +80,10 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             "Blue": [-0.6875144492298266, -1.5710764570773796],  
             "Green": [-0.6875144492298266, -3.5710764570773796], #-0.6875144492298266, -2.5710764570773796 
             "Yellow": [1.9509613546722655, 2.769092597857557],  
-            "Center":[1.3509613546722655, 2.769092597857557], #to go back to the center
-            "Wall":[1.0342484573122082, 0.169092597857557] #wall
+            "Center":[1.601377191783167, 2.70684753469068], #to go back to the center
+            "PreWall":[1.615007191783167, -0.19], 
+            "Wall":[1.601377191783167, 0.14684753469068] #wall
+            
         }
         self.emitter = self.getDevice('emitter')  # Get the emitter device
         self.emitter.setChannel(1)  
@@ -99,7 +102,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             wheel.setVelocity(0)
 
         # Setup the environment (Carpet colors)
-        self.setup_environment()
+        # self.setup_environment()
     # color matrix
     def setup_environment(self):
         # Get the Carpet node by DEF name
@@ -210,10 +213,10 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             current_orientation = self.inertial_unit.getRollPitchYaw()[2]
             angle_diff = target_angle - current_orientation
 
-            if abs(angle_diff) < 0.04:  # Small threshold for alignment
+            if abs(angle_diff) < 0.02:  # Small threshold for alignment
                 break
 
-            speed = 0.1 if angle_diff > 0 else -0.1
+            speed = 0.05 if angle_diff > 0 else -0.05
             # self.left_motor.setVelocity(-speed)
             # self.right_motor.setVelocity(speed)
             self.set_motors_velocity(YOU_VELOCITY,-YOU_VELOCITY,YOU_VELOCITY,-YOU_VELOCITY)
@@ -386,7 +389,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         print("Starting 360-degree rotation to find the box...")
 
         # Rotate the robot in place
-        rotation_speed = 14  # Adjust rotation speed if needed
+        rotation_speed = 10  # Adjust rotation speed if needed
         total_rotation = 0  # Track how far the robot has rotated
         timestep_seconds = self.timestep / 1000.0  # Convert timestep to seconds
         angular_velocity = 0.1  # Approximate angular velocity of the robot in radians per second
@@ -398,26 +401,39 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             camera_image = self.camera.getImage()
             width, height = self.camera.getWidth(), self.camera.getHeight()
 
-            # Loop through the image to find the target color (e.g., red box)
+            # Loop through the image to find the target colors
             for y in range(height):
                 for x in range(width):
                     r = self.camera.imageGetRed(camera_image, width, x, y)
                     g = self.camera.imageGetGreen(camera_image, width, x, y)
                     b = self.camera.imageGetBlue(camera_image, width, x, y)
 
-                    # Detect red color (adjust thresholds as needed)
+                    # Detect red color
                     if r > 200 and g < 50 and b < 50:
+                        detected_color = "red"
+                    # Detect yellow color
+                    elif r > 200 and g > 200 and b < 50:
+                        detected_color = "yellow"
+                    # Detect green color
+                    elif r < 50 and g > 200 and b < 50:
+                        detected_color = "green"
+                    # Detect blue color
+                    elif r < 50 and g < 50 and b > 200:
+                        detected_color = "blue"
+                    else:
+                        detected_color = None
+
+                    if detected_color:
+                        print("Detected color: ",detected_color)
                         # Stop the robot
                         self.set_motors_velocity(0, 0, 0, 0)
 
                         # Calculate angle to the box
-                        # angle_to_box = (x - width / 2) * self.fieldOfView / width
                         angle_to_box = (x - width / 2) * self.camera.getFov() / width
-
                         distance_to_box = 1.0  # Placeholder distance value; estimate if needed
 
-                        print(f"Box detected at angle: {angle_to_box:.2f} radians")
-                        return angle_to_box, distance_to_box
+                        print(f"{detected_color.capitalize()} box detected at angle: {angle_to_box:.2f} radians")
+                        return detected_color, angle_to_box, distance_to_box
 
             # Update the total rotation based on angular velocity
             total_rotation += angular_velocity * timestep_seconds
@@ -429,9 +445,10 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         return None
     def pick_box(self):
         print("Picking up box...")
-        self.armMotors[1].setPosition(-1.13)
+        self.armMotors[1].setPosition(-0.8)
         self.armMotors[2].setPosition(-0.95)
-        self.armMotors[3].setPosition(-1.125)
+        self.armMotors[3].setPosition(-1.3)
+        self.step(20 * self.timestep)
         self.finger1.setPosition(self.fingerMaxPosition)
         self.finger2.setPosition(self.fingerMaxPosition)
         self.step(50 * self.timestep)
@@ -533,22 +550,23 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
     def release_box(self):
         print("Releasing the box...")
         self.step(10 * self.timestep)
-        self.armMotors[1].setPosition(-1.13)
-        self.step(20 * self.timestep)
-        self.armMotors[2].setPosition(-0.95)
-        self.step(20 * self.timestep)
-        self.armMotors[3].setPosition(-1.125)
-        self.step(20 * self.timestep)
+        # self.armMotors[1].setPosition(-1.13)
+        # self.step(20 * self.timestep)
+        # self.armMotors[2].setPosition(-0.95)
+        # self.step(20 * self.timestep)
+        # self.armMotors[3].setPosition(-1.125)
+        # self.step(20 * self.timestep)
         self.finger1.setPosition(self.fingerMaxPosition)
         self.finger2.setPosition(self.fingerMaxPosition)
         self.step(50 * self.timestep)
         self.finger1.setPosition(0.0)
         self.finger2.setPosition(0.0)
+        self.step(10 * self.timestep)
         self.armMotors[3].setPosition(0)
         self.armMotors[2].setPosition(0)
         self.armMotors[1].setPosition(0)
-        self.step(50 * self.timestep)
-        self.step(100 * self.timestep)
+        self.step(20 * self.timestep)
+        # self.step(100 * self.timestep)
         print("Released the box!")
     def CallEmitter(self):
         # Send a signal to the second robot
@@ -558,9 +576,10 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
          
     def detect_and_pick_box(self):
         # Detect the box
+        global detected_color
         result = self.detect_box_camera()
         if result:
-            angle_to_box, distance_to_box = result
+            detected_color,angle_to_box, distance_to_box = result
             self.pick_box()
             print("Box picked up!")
             # Move to the drop zone and drop the box
@@ -600,11 +619,13 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def run(self):
         while self.step(self.timestep) != -1:
-            # print("Performing task as the second robot...")
+            print("Performing task as the second robot...")
             self.navigate_to_sector("Center")
             self.StandStill()
-            self.navigate_to_sector("Wall")
+            self.navigate_to_sector("PreWall")
             self.StandStill()
+            # self.navigate_to_sector("Wall")
+            # self.StandStill()
             self.detect_and_pick_box()
             self.navigate_to_sector("Center")
             self.StandStill()
@@ -620,9 +641,9 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             
             # self.move_forward(YOU_VELOCITY)
             # self.get_camera_image()
-            current_pos = self.get_position()
+            # current_pos = self.get_position()
 
-            print(current_pos)
+            # print(current_pos)
 
     def listen_for_signal(self):
         # Check if there's a message received
@@ -631,7 +652,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             print(f"Message received: {message}")
 
             # Process the message
-            if message == "Come baby come":
+            if message != "Come baby come":
                 print("Second robot activated!")
                 # Run the code for the second robot here
                 self.run()
@@ -641,7 +662,14 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
     def loop(self):
         while self.step(self.timestep) != -1:
             # self.listen_for_signal()
-            break
+            self.navigate_to_sector("PreWall")
+            self.StandStill()
+            # self.navigate_to_sector("Wall")
+            # self.StandStill()
+            self.detect_and_pick_box()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            # break
 
 
 # Instantiate and run the controller
