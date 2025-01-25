@@ -78,12 +78,12 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.reached_distance=False
         
         self.sector_coordinates = {
-            "Red": [-2.073329050888169, -2.570625111558194],
+            "Red": [-2.273329050888169, -2.570625111558194],
             "Blue": [-0.5725307377437417, -1.57287519101565],  
             "Green": [-0.5725307377437417, -3.57287519101565], #-0.6875144492298266, -2.5710764570773796 
             "Yellow": [-0.5725307377437417, -2.57287519101565],  
             "Center":[1.0738674118287237, -2.5753436072422304], #to go back to the center
-            "Wall":[0.9342484573122082, -0.167330050096285] #wall
+            "Wall":[0.8042484573122082, -0.167330050096285] #wall
         }
         self.emitter = self.getDevice('emitter')  # Get the emitter device
         self.emitter.setChannel(1)  
