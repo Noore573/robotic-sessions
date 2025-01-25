@@ -79,7 +79,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             "Red": [-2.151377191783167, 2.60684753469068],
             "Blue": [-0.801377191783167, 1.87684753469068],  
             "Green": [-0.801377191783167, 3.67684753469068], #-0.6875144492298266, -2.5710764570773796 
-            "Yellow": [-0.801377191783167, 2.71684753469068],  
+            "Yellow": [-0.801377191783167, 2.67684753469068],  
             "Center":[1.601377191783167, 2.70684753469068], #to go back to the center
             "PreWall":[1.615007191783167, -0.19], 
             "Wall":[1.601377191783167, 0.14684753469068] #wall
@@ -549,11 +549,11 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def release_box(self):
         print("Releasing the box...")
-        # self.step(10 * self.timestep)
-        # self.armMotors[1].setPosition(-1.13)
-        # self.step(20 * self.timestep)
-        # self.armMotors[2].setPosition(-0.95)
-        # self.step(20 * self.timestep)
+        self.step(10 * self.timestep)
+        self.armMotors[1].setPosition(-1.13)
+        self.step(20 * self.timestep)
+        self.armMotors[2].setPosition(-0.95)
+        self.step(20 * self.timestep)
         # self.armMotors[3].setPosition(-1.125)
         # self.step(20 * self.timestep)
         self.finger1.setPosition(self.fingerMaxPosition)
@@ -617,7 +617,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.set_motors_velocity(velocity, velocity, velocity, velocity)
 
 
-    def run(self,message):
+    def run(self):
         while self.step(self.timestep) != -1:
             print("Performing task as the second robot...")
             self.navigate_to_sector("Center")
@@ -629,15 +629,15 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             self.StandStill()
             self.navigate_to_sector("Center")
             self.StandStill()
-            self.navigate_to_sector(message)
+            self.navigate_to_sector("Yellow")
             self.StandStill()
             self.release_box()
             self.StandStill()
             self.navigate_to_sector("Center")
             self.StandStill()
-            # self.navigate_to_sector("PreWall")
-            # self.StandStill()
-            # self.CallEmitter()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.CallEmitter()
             
             # self.move_forward(YOU_VELOCITY)
             # self.get_camera_image()
@@ -655,31 +655,31 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             if message != "Come baby come":
                 print("Second robot activated!")
                 # Run the code for the second robot here
-                self.run(message)
+                self.run()
 
             self.receiver.nextPacket()  # Clear the received message from the queue
 
     def loop(self):
         while self.step(self.timestep) != -1:
-            self.listen_for_signal()
+            # self.listen_for_signal()
             # self.navigate_to_sector("PreWall")
             # self.StandStill()
             # # self.navigate_to_sector("Wall")
             # # self.StandStill()
             # self.detect_and_pick_box()
-            # self.navigate_to_sector("Center")
-            # self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
             # # self.move_forward(YOU_VELOCITY)
             # # self.get_camera_image()
             # current_pos = self.get_position()
 
             # print(current_pos)
             
-            # self.navigate_to_sector("Blue")
-            # self.StandStill()
-            # self.navigate_to_sector("Red")
-            # self.StandStill()
-            # # self.release_box()
+            self.navigate_to_sector("Blue")
+            self.StandStill()
+            self.navigate_to_sector("Red")
+            self.StandStill()
+            # self.release_box()
             # break
 
 

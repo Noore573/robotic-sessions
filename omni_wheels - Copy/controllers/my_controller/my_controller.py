@@ -3,9 +3,11 @@ import time
 from controller import Supervisor, Robot
 import json
 import numpy as np
+import cv2
+import numpy as np
 # center
 #[1.1851988573892502, -2.5800691309387913, 0.10193773101325956]
-
+color_matrixx = [] 
 YOU_VELOCITY=14.0
 reached_distance_Threshold=0.3
 detected_color=""
@@ -27,17 +29,17 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         super().__init__()
         self.timestep = int(self.getBasicTimeStep())
 
-        # # Load the color matrix from a JSON file
-        # try:
-        #     with open("color_matrix.json", "r") as file:
-        #         print("Reading color matrix...")
-        #         data = json.load(file)
-        #         self.color_matrix = data.get("color_matrix")
-        #         if not self.color_matrix or not isinstance(self.color_matrix, list) or len(self.color_matrix[0]) != 4:
-        #             raise ValueError("Invalid or missing 'color_matrix' in JSON. Ensure it has one row with 4 colors.")
-        # except Exception as e:
-        #     print(f"Error reading color matrix: {e}")
-        #     exit(1)
+        # Load the color matrix from a JSON file
+        try:
+            with open("color_matrix.json", "r") as file:
+                print("Reading color matrix...")
+                data = json.load(file)
+                self.color_matrix = data.get("color_matrix")
+                if not self.color_matrix or not isinstance(self.color_matrix, list) or len(self.color_matrix[0]) != 4:
+                    raise ValueError("Invalid or missing 'color_matrix' in JSON. Ensure it has one row with 4 colors.")
+        except Exception as e:
+            print(f"Error reading color matrix: {e}")
+            exit(1)
 
         # Initialize wheels
         self.front_right_wheel = self.getDevice("wheel1")
@@ -63,8 +65,8 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.fingerMinPosition = self.finger1.getMinPosition()
         self.fingerMaxPosition = self.finger1.getMaxPosition()
         
-        self.camera = self.getDevice("camera")
-        self.camera.enable(self.timestep)
+        self.camera_bottom = self.getDevice("camera")
+        self.camera_bottom.enable(self.timestep)
         self.camera = self.getDevice("front-camera")
         self.camera.enable(self.timestep)
         
@@ -76,20 +78,15 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.reached_distance=False
         
         self.sector_coordinates = {
-            "Red": [-2.151377191783167, 2.60684753469068],
-            "Blue": [-0.801377191783167, 1.87684753469068],  
-            "Green": [-0.801377191783167, 3.67684753469068], #-0.6875144492298266, -2.5710764570773796 
-            "Yellow": [-0.801377191783167, 2.71684753469068],  
-            "Center":[1.601377191783167, 2.70684753469068], #to go back to the center
-            "PreWall":[1.615007191783167, -0.19], 
-            "Wall":[1.601377191783167, 0.14684753469068] #wall
-            
+            "Red": [-2.073329050888169, -2.570625111558194],
+            "Blue": [-0.5725307377437417, -1.57287519101565],  
+            "Green": [-0.5725307377437417, -3.57287519101565], #-0.6875144492298266, -2.5710764570773796 
+            "Yellow": [-0.5725307377437417, -2.57287519101565],  
+            "Center":[1.0738674118287237, -2.5753436072422304], #to go back to the center
+            "Wall":[0.7342484573122082, -0.167330050096285] #wall
         }
         self.emitter = self.getDevice('emitter')  # Get the emitter device
         self.emitter.setChannel(1)  
-        self.receiver = self.getDevice('receiver')  # Get the receiver device
-        self.receiver.setChannel(1)                # Set the channel (must match emitter)
-        self.receiver.enable(64)  
         
 
         # Set motors to infinite position and initialize velocity
@@ -102,7 +99,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             wheel.setVelocity(0)
 
         # Setup the environment (Carpet colors)
-        # self.setup_environment()
+        self.setup_environment()
     # color matrix
     def setup_environment(self):
         # Get the Carpet node by DEF name
@@ -156,30 +153,45 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
                 print(f"Error: Insufficient colors in color_matrix for child {i}. Skipping.")
                 continue
     def get_camera_image(self):
+        """
+        Get the image from the camera, classify the top-left pixel color, 
+        and update the global color matrix with unique colors.
+        """
+        global color_matrixx  # Use the global color matrix
+
         # Get the image from the camera
-        image = self.camera.getImageArray()
+        image = self.camera_bottom.getImageArray()
         if image:
-            # Example: Print the first pixel's RGB values
-            pixel = image[0][0]  # Access the top-left pixel
-            # if pixel!=[180, 180, 180]:
-            #     print("First pixel RGB:", pixel)
+            # Access the top-left pixel
+            pixel = image[0][0]  
+            # Classify the color
+            detected_color = self.classify_color(pixel)
+
+            if detected_color and detected_color not in color_matrixx:
+                # Add the detected color to the matrix if it's not already present
+                color_matrixx.append(detected_color)
+                print(f"Added {detected_color} to color_matrix: {color_matrixx}")
+            
+            # Exit if we have 4 unique colors
+            if len(color_matrixx) == 4:
+                print("All 4 colors detected. Stopping...")
+                return "0"
         else:
             print("No image data available")
+
     def classify_color(self, rgb):
+        """
+        Classify the given RGB value into a specific color.
+        """
         r, g, b = rgb
         if r > 150 and g < 100 and b < 100:  
-            # print('red')
             return "Red"
         elif b > 150 and r < 100 and g < 100:
-            # print('blue')
             return "Blue"
         elif g > 150 and r < 100 and b < 100:
-            # print('green')
             return "Green"
         elif r > 150 and g > 150 and b < 100:
-            # print('yellow')
             return "Yellow"
-        # print('-')
         return None  # Not a classified color
     
 
@@ -213,10 +225,10 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             current_orientation = self.inertial_unit.getRollPitchYaw()[2]
             angle_diff = target_angle - current_orientation
 
-            if abs(angle_diff) < 0.02:  # Small threshold for alignment
+            if abs(angle_diff) < 0.04:  # Small threshold for alignment
                 break
 
-            speed = 0.05 if angle_diff > 0 else -0.05
+            speed = 0.1 if angle_diff > 0 else -0.1
             # self.left_motor.setVelocity(-speed)
             # self.right_motor.setVelocity(speed)
             self.set_motors_velocity(YOU_VELOCITY,-YOU_VELOCITY,YOU_VELOCITY,-YOU_VELOCITY)
@@ -379,7 +391,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         time.sleep(1)
     
     
-
+    
     def detect_box_camera(self):
         """
         Automatically detect the box location using the existing camera by performing a 360-degree rotation.
@@ -389,7 +401,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         print("Starting 360-degree rotation to find the box...")
 
         # Rotate the robot in place
-        rotation_speed = 10  # Adjust rotation speed if needed
+        rotation_speed = 14  # Adjust rotation speed if needed
         total_rotation = 0  # Track how far the robot has rotated
         timestep_seconds = self.timestep / 1000.0  # Convert timestep to seconds
         angular_velocity = 0.1  # Approximate angular velocity of the robot in radians per second
@@ -443,12 +455,12 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.set_motors_velocity(0, 0, 0, 0)
         print("Box not found after 360-degree rotation.")
         return None
+
     def pick_box(self):
         print("Picking up box...")
-        self.armMotors[1].setPosition(-0.8)
+        self.armMotors[1].setPosition(-1.13)
         self.armMotors[2].setPosition(-0.95)
-        self.armMotors[3].setPosition(-1.3)
-        self.step(20 * self.timestep)
+        self.armMotors[3].setPosition(-1.125)
         self.finger1.setPosition(self.fingerMaxPosition)
         self.finger2.setPosition(self.fingerMaxPosition)
         self.step(50 * self.timestep)
@@ -549,7 +561,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
     def release_box(self):
         print("Releasing the box...")
-        # self.step(10 * self.timestep)
+        self.step(10 * self.timestep)
         # self.armMotors[1].setPosition(-1.13)
         # self.step(20 * self.timestep)
         # self.armMotors[2].setPosition(-0.95)
@@ -568,11 +580,11 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.step(20 * self.timestep)
         # self.step(100 * self.timestep)
         print("Released the box!")
-    def CallEmitter(self):
+    def CallEmitter(self,detected_color):
         # Send a signal to the second robot
-        message = "Come baby come"
+        message = detected_color
         self.emitter.send(message.encode('utf-8'))  
-        print("Signal sent to the second robot.")
+        print("Signal sent to the second robot. the message:",detected_color)
          
     def detect_and_pick_box(self):
         # Detect the box
@@ -605,7 +617,12 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
 
 
 
-        
+    def get_color_matrix(self):
+        while self.step(self.timestep) != -1:
+            self.move_forward(YOU_VELOCITY)
+            value=self.get_camera_image()
+            if value=="0": break
+            
     def set_motors_velocity(self, wheel1_v, wheel2_v, wheel3_v, wheel4_v):
         # print(wheel1_v)
         self.front_right_wheel.setVelocity(wheel1_v)
@@ -616,71 +633,120 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
     def move_forward(self, velocity):
         self.set_motors_velocity(velocity, velocity, velocity, velocity)
 
+    def move_backward(self, velocity):
+        self.set_motors_velocity(-velocity, -velocity, -velocity, -velocity)
 
-    def run(self,message):
-        while self.step(self.timestep) != -1:
-            print("Performing task as the second robot...")
-            self.navigate_to_sector("Center")
-            self.StandStill()
-            self.navigate_to_sector("PreWall")
-            self.StandStill()
-            # self.navigate_to_sector("Wall")
-            self.detect_and_pick_box()
-            self.StandStill()
-            self.navigate_to_sector("Center")
-            self.StandStill()
-            self.navigate_to_sector(message)
-            self.StandStill()
-            self.release_box()
-            self.StandStill()
-            self.navigate_to_sector("Center")
-            self.StandStill()
-            # self.navigate_to_sector("PreWall")
-            # self.StandStill()
-            # self.CallEmitter()
-            
-            # self.move_forward(YOU_VELOCITY)
-            # self.get_camera_image()
-            # current_pos = self.get_position()
+    def move_left(self, velocity):
+        self.front_right_wheel.setVelocity(velocity)
+        self.front_left_wheel.setVelocity(-velocity)
+        self.back_left_wheel.setVelocity(velocity)
+        self.back_right_wheel.setVelocity(-velocity)
 
-            # print(current_pos)
+    def move_right(self, velocity):
+        self.front_right_wheel.setVelocity(-velocity)
+        self.front_left_wheel.setVelocity(velocity)
+        self.back_left_wheel.setVelocity(-velocity)
+        self.back_right_wheel.setVelocity(velocity)
 
-    def listen_for_signal(self):
-        # Check if there's a message received
-        if self.receiver.getQueueLength() > 0:
-            message = self.receiver.getString()  # Directly get the string message
-            print(f"Message received: {message}")
+    def turn_cw(self, velocity):
+        self.front_right_wheel.setVelocity(-velocity)
+        self.front_left_wheel.setVelocity(velocity)
+        self.back_left_wheel.setVelocity(velocity)
+        self.back_right_wheel.setVelocity(-velocity)
 
-            # Process the message
-            if message != "Come baby come":
-                print("Second robot activated!")
-                # Run the code for the second robot here
-                self.run(message)
-
-            self.receiver.nextPacket()  # Clear the received message from the queue
+    def turn_ccw(self, velocity):
+        self.front_right_wheel.setVelocity(velocity)
+        self.front_left_wheel.setVelocity(-velocity)
+        self.back_left_wheel.setVelocity(-velocity)
+        self.back_right_wheel.setVelocity(velocity)
 
     def loop(self):
         while self.step(self.timestep) != -1:
-            self.listen_for_signal()
-            # self.navigate_to_sector("PreWall")
+            break
+            # ---------------------------
+            # for one box
+            # self.navigate_to_sector("Center")
             # self.StandStill()
-            # # self.navigate_to_sector("Wall")
-            # # self.StandStill()
+            # self.navigate_to_sector("Yellow")
+            # self.StandStill()
             # self.detect_and_pick_box()
             # self.navigate_to_sector("Center")
             # self.StandStill()
-            # # self.move_forward(YOU_VELOCITY)
-            # # self.get_camera_image()
-            # current_pos = self.get_position()
-
-            # print(current_pos)
+            # self.navigate_to_sector("Wall")
+            # self.StandStill()
+            # self.release_box()
+            # self.StandStill()
+            # self.CallEmitter()
             
-            # self.navigate_to_sector("Blue")
             # self.StandStill()
-            # self.navigate_to_sector("Red")
+            # self.navigate_to_sector("Center")
+            
+            # ---------------------------
+            
+            # for box test
+            # ---------------------------------------
+            # self.detect_and_pick_box()
+            # ---------------------------------------
+        
+
+            
+            # self.navigate_to_sector("Center")
+
             # self.StandStill()
-            # # self.release_box()
-            # break
+            # self.navigate_to_sector("Yellow")
+            # self.StandStill()
+            # self.detect_and_pick_box()
+            # self.navigate_to_sector("Center")
+            # self.StandStill()
+            # self.navigate_to_sector("Wall")
+            # self.StandStill()
+            # self.move_box_from_inv_to_front()
+            # self.StandStill()
+            
+            
+            # self.move_forward(YOU_VELOCITY)
+            # self.get_color_matrix()
+            # self.navigate_to_sector("Center")
+            # self.StandStill()
+            # self.navigate_to_sector(color_matrixx[0])
+            # self.StandStill()
+            # self.detect_and_pick_box()
+            # self.StandStill()
+            # self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.release_box()
+            self.StandStill()
+            self.CallEmitter("Yellow")#color_matrixx[0]
+            self.StandStill()
+            break
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector(color_matrixx[1])
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            
+            self.navigate_to_sector(color_matrixx[2])
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            self.StandStill()
+            self.navigate_to_sector(color_matrixx[3])
+            self.StandStill()
+            self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.navigate_to_sector("Center")
+            
+            # self.move_forward(YOU_VELOCITY)
+            
+            # self.get_camera_image()
+            # current_pos = self.get_position()
+            # print(current_pos)
 
 
 # Instantiate and run the controller
