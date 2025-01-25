@@ -719,12 +719,15 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             self.StandStill()
             self.CallEmitter(color_matrixx[0])#color_matrixx[0]
             self.StandStill()
-            break
             self.navigate_to_sector("Center")
             self.StandStill()
             self.navigate_to_sector(color_matrixx[1])
             self.StandStill()
             self.navigate_to_sector("Wall")
+            self.StandStill()
+            self.release_box()
+            self.StandStill()
+            self.CallEmitter(color_matrixx[0])#color_matrixx[0]
             self.StandStill()
             self.navigate_to_sector("Center")
             self.StandStill()

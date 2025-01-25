@@ -568,9 +568,8 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
         self.step(20 * self.timestep)
         # self.step(100 * self.timestep)
         print("Released the box!")
-    def CallEmitter(self):
+    def CallEmitter(self,message):
         # Send a signal to the second robot
-        message = "Come baby come"
         self.emitter.send(message.encode('utf-8'))  
         print("Signal sent to the second robot.")
          
@@ -635,6 +634,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
             self.StandStill()
             self.navigate_to_sector("Center")
             self.StandStill()
+            break
             # self.navigate_to_sector("PreWall")
             # self.StandStill()
             # self.CallEmitter()
@@ -662,6 +662,7 @@ class RobotController(Supervisor):  # Use Supervisor instead of Robot
     def loop(self):
         while self.step(self.timestep) != -1:
             self.listen_for_signal()
+            # self.CallEmitter("Get next box")
             # self.navigate_to_sector("PreWall")
             # self.StandStill()
             # # self.navigate_to_sector("Wall")
